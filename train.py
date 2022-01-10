@@ -15,10 +15,10 @@ from dataset import Food_LT
 from model import resnet34
 import config as cfg
 from utils import adjust_learning_rate, save_checkpoint, train, validate, logger
-
+import torchvision as tv
 
 def main():
-    model = resnet34()
+    model = v.models.resnet50()
     
     if cfg.resume:
         ''' plz implement the resume code by ur self! '''
