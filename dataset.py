@@ -7,8 +7,8 @@ import torchvision
 import torchvision.datasets
 from torchvision import transforms
 from torch.utils.data import Dataset
-import config as cfg 
-
+import config as cfg
+from torchsampler import ImbalancedDatasetSampler
 
 class LT_Dataset(Dataset):
     num_classes = cfg.num_classes
@@ -41,6 +41,9 @@ class LT_Dataset(Dataset):
 
     def __len__(self):
         return len(self.targets)
+
+    def get_labels(self):
+        return self.targets
 
     def __getitem__(self, index):
         path = self.img_path[index]
@@ -80,7 +83,7 @@ class LT_Dataset_Eval(Dataset):
             sample = Image.open(f).convert('RGB')
         if self.transform is not None:
             sample = self.transform(sample)
-        return sample, target 
+        return sample, target
 
 
 class Food_LT(object):
@@ -93,19 +96,19 @@ class Food_LT(object):
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0),
             transforms.ToTensor(),
-            normalize
+            normalize,
             ])
 
         transform_test = transforms.Compose([
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
                 transforms.ToTensor(),
-                normalize
+                normalize,
             ])
         
         ''' change to your index path '''
-        train_txt = "./data/food/train.txt"
-        eval_txt = "./data/food/val.txt"
+        train_txt = "/data/food/train.txt"
+        eval_txt = "/data/food/val.txt"
         
         train_dataset = LT_Dataset(root, train_txt, transform=transform_train)
         eval_dataset = LT_Dataset_Eval(root, eval_txt, transform=transform_test, class_map=train_dataset.class_map)
@@ -114,14 +117,21 @@ class Food_LT(object):
         self.val_num_list = eval_dataset.cls_num_list
 
         self.dist_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset) if distributed else None
+        # self.train_instance = torch.utils.data.DataLoader(
+        #     train_dataset,
+        #     batch_size=batch_size, shuffle=True,
+        #     num_workers=num_works, pin_memory=True, sampler=self.dist_sampler)
         self.train_instance = torch.utils.data.DataLoader(
             train_dataset,
-            batch_size=batch_size, shuffle=True,
-            num_workers=num_works, pin_memory=True, sampler=self.dist_sampler)
+            batch_size=batch_size,
+            num_workers=num_works, pin_memory=True, sampler=ImbalancedDatasetSampler(train_dataset))
+        # self.train_instance = torch.utils.data.DataLoader(
+        #     train_dataset,
+        #     sampler=ImbalancedDatasetSampler(train_dataset),
+        #     batch_size=batch_size
+        # )
 
         self.eval = torch.utils.data.DataLoader(
             eval_dataset,
             batch_size=batch_size, shuffle=False,
             num_workers=num_works, pin_memory=True)
-        
-        
