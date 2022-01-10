@@ -12,6 +12,17 @@ https://www.kaggle.com/t/b7ed697207f0401b94a1f5c49c559d68
 
 必须用 `GPU` 跑 Q.Q (3 min per epoch on Tesla T4 8GB Memory)
 
+# 成员
+按照拼音排序
+
+肖劲宇 2021214348
+
+叶子文 2021214314
+
+邹青松 2021214315
+
+张正鑫 2021214355
+
 # Download
 
 下载数据到指定路径 `./data/food/`,将三个文件夹分别移动到:
