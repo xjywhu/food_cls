@@ -64,3 +64,8 @@ https://www.kaggle.com/t/b7ed697207f0401b94a1f5c49c559d68
 1. 这只是个baseline，不要求一定使用这个代码
 2. 遇到问题及时与助教沟通，或者提 `issues`
 3. 请维护好自己的 `git commit` 记录，尽量在每次 `commit` 时都写明自己的具体工作
+
+# model
+实现的模型包括resnet34->resnet50->resnet101
+
+修改采样器为均衡采样器解决类别不均衡问题
